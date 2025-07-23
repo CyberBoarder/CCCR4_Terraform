@@ -12,7 +12,9 @@ eks-terraform/
 │   ├── addons/             # 애드온 모듈
 │   │   ├── aws-lb-controller/  # AWS Load Balancer Controller
 │   │   ├── ebs-csi-driver/     # EBS CSI Driver
-│   │   └── external-dns/       # External DNS
+│   │   ├── efs-csi-driver/     # EFS CSI Driver (신규)
+│   │   ├── external-dns/       # External DNS
+│   │   └── route53/            # Route53 (신규)
 │   ├── eks/                # EKS 클러스터 모듈
 │   └── vpc/                # VPC 모듈
 ├── main.tf                 # 메인 Terraform 파일
@@ -54,6 +56,16 @@ eks-terraform/
 - **main.tf**: External DNS 배포 및 IAM 역할을 정의합니다.
 - **variables.tf**: 모듈에서 사용되는 변수를 정의합니다.
 - **outputs.tf**: IAM 역할 ARN을 출력합니다.
+
+#### Route53 모듈 (`modules/addons/route53/`) - 신규
+- **main.tf**: Route53 호스트 존 및 DNS 레코드를 정의합니다.
+- **variables.tf**: 모듈에서 사용되는 변수를 정의합니다.
+- **outputs.tf**: 호스트 존 ID와 네임서버 정보를 출력합니다.
+
+#### EFS CSI Driver 모듈 (`modules/addons/efs-csi-driver/`) - 신규
+- **main.tf**: EFS 파일 시스템, 마운트 타겟, CSI 드라이버 배포 및 IAM 역할을 정의합니다.
+- **variables.tf**: 모듈에서 사용되는 변수를 정의합니다.
+- **outputs.tf**: IAM 역할 ARN, 파일 시스템 ID, 스토리지 클래스 이름을 출력합니다.
 
 ## 배포 방법
 
@@ -133,14 +145,42 @@ module "new_addon" {
 
 ## AWS Well-Architected Framework 준수 사항
 
-- **운영 우수성**: 모듈화된 구조로 유지보수 용이
+- **운영 우수성**: 모듈화된 구조로 유지보수 용이, Route53을 통한 DNS 관리 자동화
 - **보안**: IRSA 활성화, 클러스터 로깅, 적절한 보안 그룹 설정
-- **안정성**: 다중 AZ 구성, 자동 확장 노드 그룹
-- **성능 효율성**: 워크로드에 맞는 인스턴스 타입 선택
-- **비용 최적화**: 필요에 따른 노드 그룹 구성, 자동 확장 설정
+- **안정성**: 다중 AZ 구성, 자동 확장 노드 그룹, EFS를 통한 영구 스토리지 제공
+- **성능 효율성**: 워크로드에 맞는 인스턴스 타입 선택, 다양한 스토리지 옵션(EBS, EFS) 제공
+- **비용 최적화**: 필요에 따른 노드 그룹 구성, 자동 확장 설정, 적절한 스토리지 클래스 선택
+
+## 새로 추가된 기능
+
+### 1. Route53 호스트 존 관리
+
+Route53 모듈은 다음 기능을 제공합니다:
+- 호스트 존 생성 및 관리
+- API 서버용 DNS 레코드 자동 생성
+- 애플리케이션용 와일드카드 DNS 레코드 자동 생성
+
+현재는 테스트 도메인(example.com)을 사용하며, 추후 실제 도메인으로 변경할 수 있습니다.
+
+### 2. EFS CSI Driver
+
+EFS CSI Driver 모듈은 다음 기능을 제공합니다:
+- EFS 파일 시스템 자동 생성
+- 모든 서브넷에 마운트 타겟 자동 생성
+- 필요한 보안 그룹 구성
+- EFS CSI Driver 배포 및 구성
+- EFS 스토리지 클래스 자동 생성
+
+EFS는 다음과 같은 용도에 적합합니다:
+- 영구 저장이 필요한 데이터
+- 다중 파드에서 동시 접근해야 하는 데이터
+- 워크플로우 공유 데이터
+- CI/CD 파이프라인 아티팩트
 
 ## 주의사항
 
 - 프로덕션 환경에 배포하기 전에 항상 `terraform plan`으로 변경 사항을 확인하세요.
 - 클러스터 업그레이드는 신중하게 계획하고 실행해야 합니다.
 - IAM 역할과 권한은 최소 권한 원칙을 따라야 합니다.
+- Route53 호스트 존을 사용하려면 도메인을 소유하고 있어야 합니다.
+- EFS 사용 시 적절한 백업 전략을 계획하세요.

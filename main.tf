@@ -80,3 +80,31 @@ module "external_dns" {
   
   depends_on = [module.eks]
 }
+
+module "route53" {
+  source = "./modules/addons/route53"
+  
+  domain_name     = var.domain_name
+  environment     = var.environment
+  cluster_name    = module.eks.cluster_name
+  
+  # These values would be populated when you have actual load balancers
+  # api_endpoint         = module.eks.cluster_endpoint
+  # api_endpoint_zone_id = "EXAMPLE_ZONE_ID"
+  # nlb_hostname         = module.aws_lb_controller.nlb_hostname
+  # nlb_zone_id          = module.aws_lb_controller.nlb_zone_id
+  
+  depends_on = [module.eks]
+}
+
+module "efs_csi_driver" {
+  source = "./modules/addons/efs-csi-driver"
+  
+  cluster_name            = module.eks.cluster_name
+  cluster_oidc_issuer_url = module.eks.cluster_oidc_issuer_url
+  vpc_id                  = module.vpc.vpc_id
+  subnet_ids              = module.vpc.private_subnets
+  vpc_cidr_blocks         = [var.vpc_cidr]
+  
+  depends_on = [module.eks]
+}

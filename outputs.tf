@@ -32,3 +32,23 @@ output "public_subnets" {
   description = "List of public subnet IDs"
   value       = module.vpc.public_subnets
 }
+
+output "route53_zone_id" {
+  description = "The ID of the Route53 hosted zone"
+  value       = module.route53.zone_id
+}
+
+output "route53_name_servers" {
+  description = "The name servers of the Route53 hosted zone"
+  value       = module.route53.name_servers
+}
+
+output "efs_file_system_id" {
+  description = "ID of the EFS file system"
+  value       = module.efs_csi_driver.file_system_id
+}
+
+output "efs_storage_class_name" {
+  description = "Name of the EFS storage class"
+  value       = module.efs_csi_driver.storage_class_name
+}

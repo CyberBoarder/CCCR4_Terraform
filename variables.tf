@@ -61,6 +61,12 @@ variable "node_groups" {
   }
 }
 
+variable "environment" {
+  description = "Environment name"
+  type        = string
+  default     = "prod"
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
