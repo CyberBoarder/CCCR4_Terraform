@@ -1,6 +1,7 @@
 # AWS EKS Terraform 프로젝트
 
 AWS Well-Architected Framework를 따르는 EKS 클러스터를 Terraform으로 배포하는 코드입니다.
+<img width="1082" height="951" alt="test drawio" src="https://github.com/user-attachments/assets/c24c9360-5189-4d7b-9997-6eb6629e2475" />
 
 ## 프로젝트 구조
 
