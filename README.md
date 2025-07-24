@@ -183,6 +183,36 @@ EFS는 다음과 같은 용도에 적합합니다:
 
 ## 주의사항 및 문제 해결
 
+### Terraform 트러블슈팅
+
+#### 1. 프로바이더 버전 충돌
+- **문제**: Terraform AWS 프로바이더 버전 충돌로 인한 초기화 실패
+- **증상**: `terraform init` 실행 시 "Provider requirements not met" 오류 발생
+- **해결**: 
+  - `versions.tf` 파일에서 AWS 프로바이더 버전 제약 조건 완화
+  - `terraform init -upgrade` 명령으로 프로바이더 강제 업그레이드
+
+#### 2. 모듈 참조 오류
+- **문제**: 모듈 경로 또는 참조 오류
+- **증상**: "Module not found" 또는 "Reference to undeclared resource" 오류
+- **해결**:
+  - 모듈 경로 확인 및 수정
+  - 모듈 간 의존성 순서 확인 (`depends_on` 속성 사용)
+
+#### 3. EKS 클러스터 생성 시간 초과
+- **문제**: EKS 클러스터 생성 시간이 Terraform 기본 타임아웃보다 길어짐
+- **증상**: "timeout while waiting for state to become" 오류
+- **해결**:
+  - `timeouts` 블록을 사용하여 생성 타임아웃 증가
+  - AWS 콘솔에서 클러스터 상태 확인 후 Terraform 재실행
+
+#### 4. 권한 부족 오류
+- **문제**: AWS 계정 권한 부족으로 리소스 생성 실패
+- **증상**: "AccessDenied" 또는 "UnauthorizedOperation" 오류
+- **해결**:
+  - AWS IAM 정책 확인 및 필요한 권한 추가
+  - 임시 관리자 권한으로 실행 후 최소 권한 정책 설계
+
 ### Git 저장소 관리
 
 - `.terraform` 디렉토리와 `.terraform.lock.hcl` 파일은 `.gitignore`에 추가되어 Git에서 제외됩니다.
