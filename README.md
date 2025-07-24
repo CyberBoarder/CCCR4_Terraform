@@ -18,9 +18,11 @@ eks-terraform/
 │   │   └── route53/            # Route53 (신규)
 │   ├── eks/                # EKS 클러스터 모듈
 │   └── vpc/                # VPC 모듈
+├── .gitignore              # Git 제외 파일 설정
 ├── main.tf                 # 메인 Terraform 파일
 ├── outputs.tf              # 출력 정의
-└── variables.tf            # 변수 정의
+├── variables.tf            # 변수 정의
+└── versions.tf             # Terraform 및 Provider 버전 정의
 ```
 
 ## 주요 파일 설명
@@ -30,6 +32,7 @@ eks-terraform/
 - **main.tf**: 모든 모듈을 조합하여 전체 인프라를 정의합니다.
 - **variables.tf**: 프로젝트에서 사용되는 모든 변수를 정의합니다.
 - **outputs.tf**: 배포 후 출력되는 값들을 정의합니다.
+- **.gitignore**: Git에서 제외할 파일 및 디렉토리를 정의합니다.
 
 ### 모듈 파일
 
@@ -178,7 +181,31 @@ EFS는 다음과 같은 용도에 적합합니다:
 - 워크플로우 공유 데이터
 - CI/CD 파이프라인 아티팩트
 
-## 주의사항
+## 주의사항 및 문제 해결
+
+### Git 저장소 관리
+
+- `.terraform` 디렉토리와 `.terraform.lock.hcl` 파일은 `.gitignore`에 추가되어 Git에서 제외됩니다.
+- 이는 대용량 프로바이더 바이너리 파일(특히 AWS 프로바이더는 700MB 이상)이 GitHub의 파일 크기 제한(100MB)을 초과하기 때문입니다.
+- 팀원들은 각자 `terraform init`을 실행하여 필요한 프로바이더와 모듈을 로컬에 설치해야 합니다.
+
+### 발생 가능한 문제와 해결 방법
+
+1. **대용량 파일 푸시 오류**:
+   - 문제: `.terraform` 디렉토리의 대용량 파일이 Git에 추가되어 푸시 실패
+   - 해결: `.gitignore` 파일에 `.terraform/` 및 관련 파일 추가, `git filter-branch` 명령으로 히스토리에서 제거
+
+2. **Terraform 초기화 오류**:
+   - 문제: 모듈 또는 프로바이더 다운로드 실패
+   - 해결: 네트워크 연결 확인, AWS 자격 증명 확인, Terraform 버전 확인
+
+3. **EKS 클러스터 생성 실패**:
+   - 문제: IAM 권한 부족 또는 서비스 할당량 초과
+   - 해결: 필요한 IAM 권한 확인, AWS 서비스 할당량 증가 요청
+
+4. **애드온 배포 실패**:
+   - 문제: OIDC 프로바이더 설정 오류 또는 IAM 역할 권한 부족
+   - 해결: OIDC 프로바이더 설정 확인, IAM 역할 정책 검토
 
 - 프로덕션 환경에 배포하기 전에 항상 `terraform plan`으로 변경 사항을 확인하세요.
 - 클러스터 업그레이드는 신중하게 계획하고 실행해야 합니다.
