@@ -13,7 +13,7 @@ domain_name = "example.com"
 node_groups = {
   management = {
     name           = "management-node-group"
-    instance_types = ["m5.large"]
+    instance_types = ["t3.medium"]
     min_size       = 2
     max_size       = 4
     desired_size   = 2
@@ -24,7 +24,7 @@ node_groups = {
   },
   application = {
     name           = "application-node-group"
-    instance_types = ["c5.2xlarge"]
+    instance_types = ["t3.medium"]
     min_size       = 3
     max_size       = 10
     desired_size   = 3
@@ -35,7 +35,7 @@ node_groups = {
   },
   monitoring = {
     name           = "monitoring-node-group"
-    instance_types = ["r5.xlarge"]
+    instance_types = ["t3.medium"]
     min_size       = 2
     max_size       = 4
     desired_size   = 2

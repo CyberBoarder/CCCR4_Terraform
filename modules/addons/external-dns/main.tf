@@ -25,40 +25,36 @@ resource "helm_release" "external_dns" {
   namespace  = "kube-system"
   version    = "6.20.4"
 
-  set {
-    name  = "provider"
-    value = "aws"
-  }
-
-  set {
-    name  = "aws.region"
-    value = data.aws_region.current.name
-  }
-
-  set {
-    name  = "serviceAccount.create"
-    value = "true"
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = local.name
-  }
-
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.external_dns_role.iam_role_arn
-  }
-
-  set {
-    name  = "domainFilters[0]"
-    value = var.domain_filter
-  }
-
-  set {
-    name  = "policy"
-    value = "sync"
-  }
+  set = [
+    {
+      name  = "provider"
+      value = "aws"
+    },
+    {
+      name  = "aws.region"
+      value = data.aws_region.current.name
+    },
+    {
+      name  = "serviceAccount.create"
+      value = "true"
+    },
+    {
+      name  = "serviceAccount.name"
+      value = local.name
+    },
+    {
+      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = module.external_dns_role.iam_role_arn
+    },
+    {
+      name  = "domainFilters[0]"
+      value = var.domain_filter
+    },
+    {
+      name  = "policy"
+      value = "sync"
+    }
+  ]
 }
 
 data "aws_caller_identity" "current" {}

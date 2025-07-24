@@ -3,24 +3,24 @@ provider "aws" {
 }
 
 provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-    command     = "aws"
-  }
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
+}
+
+data "aws_eks_cluster" "cluster" {
+  name = module.eks.cluster_id
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_id
 }
 
 provider "helm" {
-  kubernetes {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-      command     = "aws"
-    }
+  kubernetes = {
+    host                   = data.aws_eks_cluster.cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+    token                  = data.aws_eks_cluster_auth.cluster.token
   }
 }
 
@@ -88,11 +88,11 @@ module "route53" {
   environment     = var.environment
   cluster_name    = module.eks.cluster_name
   
-  # These values would be populated when you have actual load balancers
-  # api_endpoint         = module.eks.cluster_endpoint
-  # api_endpoint_zone_id = "EXAMPLE_ZONE_ID"
-  # nlb_hostname         = module.aws_lb_controller.nlb_hostname
-  # nlb_zone_id          = module.aws_lb_controller.nlb_zone_id
+  # Provide actual values for alias records
+  api_endpoint         = module.eks.cluster_endpoint
+  api_endpoint_zone_id = "Z1H1FL5HABSF5" # AWS 기본 API 엔드포인트 Zone ID
+  nlb_hostname         = "" # 실제 배포 시 module.aws_lb_controller.nlb_hostname 값으로 대체
+  nlb_zone_id          = "" # 실제 배포 시 module.aws_lb_controller.nlb_zone_id 값으로 대체
   
   depends_on = [module.eks]
 }

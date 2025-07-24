@@ -24,20 +24,20 @@ resource "helm_release" "ebs_csi_driver" {
   namespace  = "kube-system"
   version    = "2.23.1"
 
-  set {
-    name  = "controller.serviceAccount.create"
-    value = "true"
-  }
-
-  set {
-    name  = "controller.serviceAccount.name"
-    value = local.name
-  }
-
-  set {
-    name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.ebs_csi_driver_role.iam_role_arn
-  }
+  set = [
+    {
+      name  = "controller.serviceAccount.create"
+      value = "true"
+    },
+    {
+      name  = "controller.serviceAccount.name"
+      value = local.name
+    },
+    {
+      name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = module.ebs_csi_driver_role.iam_role_arn
+    }
+  ]
 }
 
 # Create a default storage class for EBS volumes

@@ -69,20 +69,20 @@ resource "helm_release" "efs_csi_driver" {
   namespace  = "kube-system"
   version    = "2.4.8"
 
-  set {
-    name  = "controller.serviceAccount.create"
-    value = "true"
-  }
-
-  set {
-    name  = "controller.serviceAccount.name"
-    value = local.name
-  }
-
-  set {
-    name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.efs_csi_driver_role.iam_role_arn
-  }
+  set = [
+    {
+      name  = "controller.serviceAccount.create"
+      value = "true"
+    },
+    {
+      name  = "controller.serviceAccount.name"
+      value = local.name
+    },
+    {
+      name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      value = module.efs_csi_driver_role.iam_role_arn
+    }
+  ]
 }
 
 # Create storage class for EFS

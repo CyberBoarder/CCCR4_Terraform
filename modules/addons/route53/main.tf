@@ -10,6 +10,7 @@ resource "aws_route53_zone" "main" {
 
 # Create a record for the API server
 resource "aws_route53_record" "api" {
+  count   = 0 # 실제 값이 있을 때 1로 변경
   zone_id = aws_route53_zone.main.zone_id
   name    = "api.${var.domain_name}"
   type    = "A"
@@ -23,6 +24,7 @@ resource "aws_route53_record" "api" {
 
 # Create a wildcard record for applications
 resource "aws_route53_record" "wildcard" {
+  count   = 0 # 실제 값이 있을 때 1로 변경
   zone_id = aws_route53_zone.main.zone_id
   name    = "*.${var.domain_name}"
   type    = "A"
